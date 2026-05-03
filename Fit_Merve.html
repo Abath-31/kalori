@@ -13,8 +13,8 @@ html,body{background:#100c1a;color:#e8e8e2;font-family:-apple-system,BlinkMacSys
 .tab-btn{flex:1;padding:13px 2px;font-size:12px;font-weight:400;border:none;background:transparent;color:#555;cursor:pointer;border-bottom:2px solid transparent;letter-spacing:0.02em;}
 .tab-btn.active{color:#e8e8e2;border-bottom-color:#a36ab5;font-weight:600;}
 
-.section{display:none;padding:0 14px 20px;position:relative;z-index:1;}
-.section.active{display:block;}
+.section{display:none;padding:0 14px 20px;position:relative;z-index:1;opacity:0;transform:translateX(30px);transition:opacity 0.25s ease,transform 0.25s ease;}
+.section.active{display:block;opacity:1;transform:translateX(0);}
 .sec-title{font-size:11px;font-weight:500;color:#444;text-transform:uppercase;letter-spacing:0.07em;margin:16px 0 8px;}
 
 .card{background:#1a1228;border:1px solid #2e1f3e;border-radius:12px;margin-bottom:10px;overflow:hidden;}
@@ -506,7 +506,7 @@ function setDateToday(id){
 }
 function getDay(o){
   const k=keyFromOffset(o===undefined?dayOffset:o);
-  if(!S.days[k]) S.days[k]={kcal_min:0,kcal_max:0,activities:[],status:'yellow'};
+  if(!S.days[k]) S.days[k]={kcal_min:null,kcal_max:null,activities:[],status:'neutral'};
   return S.days[k];
 }
 function changeDay(delta){
@@ -559,41 +559,58 @@ function renderDay(){
   const bmr=getBMR(S.profile);
   const actKcal=(day.activities||[]).reduce((a,x)=>a+x.kcal,0);
   const totalOut=bmr+actKcal;
-  const minIn=day.kcal_min||0;
-  const maxIn=day.kcal_max||minIn;
-  const midIn=Math.round((minIn+maxIn)/2);
-  const netMid=midIn-totalOut;
-  const netMin=minIn-totalOut;
-  const netMax=maxIn-totalOut;
-  const status=getStatus(netMid);
-  day.status=status;
+  const hasKcal = day.kcal_min !== null && day.kcal_min !== undefined;
+  const minIn = hasKcal ? (day.kcal_min||0) : null;
+  const maxIn = hasKcal ? (day.kcal_max||minIn) : null;
+  const midIn = hasKcal ? Math.round((minIn+maxIn)/2) : null;
 
   const card=document.getElementById('score-card');
-  card.className='score-card '+status;
-  document.getElementById('score-dot').textContent=DOT[status];
-  document.getElementById('day-dot').textContent=DOT[status];
-  document.getElementById('net-score').textContent=(netMid>0?'+':'')+netMid;
+  if(!hasKcal){
+    // Kalori girilmemiş — nötr göster
+    card.className='score-card yellow';
+    document.getElementById('score-dot').textContent='⬜';
+    document.getElementById('day-dot').textContent='⬜';
+    document.getElementById('net-score').textContent='—';
+    document.getElementById('score-range').textContent='Kalori girilmedi';
+    document.getElementById('total-in').textContent='—';
+    document.getElementById('total-in-range').textContent='kcal';
+    document.getElementById('total-out').textContent=totalOut;
+    document.getElementById('prog-fill').style.width='0%';
+    document.getElementById('score-goal').textContent='Kalori girmeden hesap yapılamaz';
+    document.getElementById('kcal-min-inp').value='';
+    document.getElementById('kcal-max-inp').value='';
+    day.status='neutral';
+  } else {
+    const netMid=midIn-totalOut;
+    const netMin=minIn-totalOut;
+    const netMax=maxIn-totalOut;
+    const status=getStatus(netMid);
+    day.status=status;
 
-  // Aralık göster
-  const hasRange = maxIn>minIn;
-  document.getElementById('score-range').textContent = hasRange
-    ? `${netMin>0?'+':''}${netMin} → ${netMax>0?'+':''}${netMax} kcal aralığı`
-    : `${netMid>0?'+':''}${netMid} kcal net`;
+    card.className='score-card '+status;
+    document.getElementById('score-dot').textContent=DOT[status];
+    document.getElementById('day-dot').textContent=DOT[status];
+    document.getElementById('net-score').textContent=(netMid>0?'+':'')+netMid;
 
-  document.getElementById('total-in').textContent = hasRange ? midIn : minIn;
-  document.getElementById('total-in-range').textContent = hasRange ? `kcal (${minIn}–${maxIn})` : 'kcal';
-  document.getElementById('total-out').textContent=totalOut;
+    const hasRange = maxIn>minIn;
+    document.getElementById('score-range').textContent = hasRange
+      ? `${netMin>0?'+':''}${netMin} → ${netMax>0?'+':''}${netMax} kcal aralığı`
+      : `${netMid>0?'+':''}${netMid} kcal net`;
 
-  const hedef=parseFloat(S.profile.hedef)||2000;
-  const pct=Math.min(100,Math.round((midIn/hedef)*100));
-  document.getElementById('prog-fill').style.width=pct+'%';
-  document.getElementById('score-goal').textContent=`Hedef: ${hedef} kcal — %${pct} tamamlandı`;
+    document.getElementById('total-in').textContent = hasRange ? midIn : minIn;
+    document.getElementById('total-in-range').textContent = hasRange ? `kcal (${minIn}–${maxIn})` : 'kcal';
+    document.getElementById('total-out').textContent=totalOut;
 
-  // Fill inputs
-  if(minIn) document.getElementById('kcal-min-inp').value=minIn;
-  else document.getElementById('kcal-min-inp').value='';
-  if(maxIn && maxIn!==minIn) document.getElementById('kcal-max-inp').value=maxIn;
-  else document.getElementById('kcal-max-inp').value='';
+    const hedef=parseFloat(S.profile.hedef)||2000;
+    const pct=Math.min(100,Math.round((midIn/hedef)*100));
+    document.getElementById('prog-fill').style.width=pct+'%';
+    document.getElementById('score-goal').textContent=`Hedef: ${hedef} kcal — %${pct} tamamlandı`;
+
+    if(minIn) document.getElementById('kcal-min-inp').value=minIn;
+    else document.getElementById('kcal-min-inp').value='';
+    if(maxIn && maxIn!==minIn) document.getElementById('kcal-max-inp').value=maxIn;
+    else document.getElementById('kcal-max-inp').value='';
+  }
 
   // Aktivite listesi
   const actEl=document.getElementById('act-list');
@@ -1034,10 +1051,31 @@ async function drivePush(){
 const TABS=['gunluk','olcum','gecmis','profil'];
 let currentTabIdx=0;
 
-function switchTab(tab,btn){
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+function switchTab(tab,btn,dir){
+  const oldSec=document.querySelector('.section.active');
+  const newSec=document.getElementById('sec-'+tab);
+  if(oldSec===newSec) return;
+  const goRight = dir===undefined ? TABS.indexOf(tab)>currentTabIdx : dir>0;
+  // Animate out
+  if(oldSec){
+    oldSec.style.transition='opacity 0.2s ease,transform 0.2s ease';
+    oldSec.style.opacity='0';
+    oldSec.style.transform=goRight?'translateX(-40px)':'translateX(40px)';
+    setTimeout(()=>{oldSec.classList.remove('active');oldSec.style.transform='';},200);
+  }
+  // Prepare new
+  newSec.style.transition='none';
+  newSec.style.opacity='0';
+  newSec.style.transform=goRight?'translateX(40px)':'translateX(-40px)';
+  newSec.classList.add('active');
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      newSec.style.transition='opacity 0.25s ease,transform 0.25s ease';
+      newSec.style.opacity='1';
+      newSec.style.transform='translateX(0)';
+    });
+  });
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('sec-'+tab).classList.add('active');
   if(btn) btn.classList.add('active');
   else document.querySelectorAll('.tab-btn')[TABS.indexOf(tab)].classList.add('active');
   currentTabIdx=TABS.indexOf(tab);
@@ -1056,8 +1094,8 @@ document.addEventListener('touchend',e=>{
   const dx=e.changedTouches[0].clientX-swipeStartX;
   const dy=e.changedTouches[0].clientY-swipeStartY;
   if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.5){
-    if(dx<0&&currentTabIdx<TABS.length-1) switchTab(TABS[currentTabIdx+1],null);
-    if(dx>0&&currentTabIdx>0) switchTab(TABS[currentTabIdx-1],null);
+    if(dx<0&&currentTabIdx<TABS.length-1) switchTab(TABS[currentTabIdx+1],null,1);
+    if(dx>0&&currentTabIdx>0) switchTab(TABS[currentTabIdx-1],null,-1);
   }
 },{passive:true});
 
