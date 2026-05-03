@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>Fit Merve</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{background:#100c1a;color:#e8e8e2;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:15px;}
+.app{max-width:480px;margin:0 auto;padding-bottom:80px;min-height:100vh;background:#100c1a;}
+
+.tab-bar{display:flex;border-bottom:1px solid #2a2a2a;position:sticky;top:0;background:#100c1a;z-index:100;}
+.tab-btn{flex:1;padding:13px 2px;font-size:12px;font-weight:400;border:none;background:transparent;color:#555;cursor:pointer;border-bottom:2px solid transparent;letter-spacing:0.02em;}
+.tab-btn.active{color:#e8e8e2;border-bottom-color:#a36ab5;font-weight:600;}
+
+.section{display:none;padding:0 14px 20px;position:relative;z-index:1;}
+.section.active{display:block;}
+.sec-title{font-size:11px;font-weight:500;color:#444;text-transform:uppercase;letter-spacing:0.07em;margin:16px 0 8px;}
+
+.card{background:#1a1228;border:1px solid #2e1f3e;border-radius:12px;margin-bottom:10px;overflow:hidden;}
+.card-pad{padding:14px;}
+.card-row{display:flex;justify-content:space-between;align-items:center;padding:11px 14px;border-bottom:1px solid #2a2a2a;}
+.card-row:last-child{border-bottom:none;}
+
+.day-header{display:flex;justify-content:space-between;align-items:center;padding:14px 0 10px;}
+.day-nav{display:flex;align-items:center;gap:10px;}
+.nav-btn{width:32px;height:32px;border:1px solid #2e2e2e;border-radius:8px;background:transparent;color:#e8e8e2;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;line-height:1;}
+.day-label{font-size:15px;font-weight:600;}
+
+.score-card{border-radius:14px;padding:18px 16px;margin-bottom:12px;text-align:center;}
+.score-card.blue  {background:#0d1f3c;}
+.score-card.green {background:#0d2010;}
+.score-card.yellow{background:#221c08;}
+.score-card.red   {background:#2a0d0d;}
+.score-dot{font-size:28px;line-height:1;margin-bottom:6px;}
+.score-range{font-size:13px;font-weight:600;margin-bottom:4px;letter-spacing:0.02em;}
+.score-card.blue   .score-range{color:#5b9cf6;}
+.score-card.green  .score-range{color:#7bc42e;}
+.score-card.yellow .score-range{color:#d4991a;}
+.score-card.red    .score-range{color:#e05550;}
+.score-net{font-size:38px;font-weight:700;line-height:1;letter-spacing:-1px;}
+.score-card.blue   .score-net{color:#5b9cf6;}
+.score-card.green  .score-net{color:#7bc42e;}
+.score-card.yellow .score-net{color:#d4991a;}
+.score-card.red    .score-net{color:#e05550;}
+.score-sub{font-size:11px;color:#555;margin-top:4px;}
+.prog-bg{background:rgba(255,255,255,0.07);border-radius:99px;height:4px;overflow:hidden;margin-top:10px;}
+.prog-fill{height:100%;border-radius:99px;transition:width 0.4s;}
+.score-card.blue   .prog-fill{background:#5b9cf6;}
+.score-card.green  .prog-fill{background:#7bc42e;}
+.score-card.yellow .prog-fill{background:#d4991a;}
+.score-card.red    .prog-fill{background:#e05550;}
+.score-goal{font-size:11px;color:#555;margin-top:5px;}
+
+.macro-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.macro-card{background:#1a1228;border:1px solid #2e1f3e;border-radius:10px;padding:12px;}
+.macro-lbl{font-size:10px;color:#555;text-transform:uppercase;letter-spacing:0.05em;}
+.macro-val{font-size:20px;font-weight:700;margin-top:2px;letter-spacing:-0.5px;}
+.macro-sub{font-size:10px;color:#444;margin-top:1px;}
+
+input[type=number],input[type=text],input[type=date],input[type=password]{
+  background:#2a2a2a;border:1px solid #333;border-radius:8px;
+  color:#e8e8e2;padding:9px 11px;font-size:14px;outline:none;-webkit-appearance:none;}
+input:focus{border-color:#555;}
+select{background:#2a2a2a;border:1px solid #333;border-radius:8px;color:#e8e8e2;
+  padding:9px 11px;font-size:14px;outline:none;-webkit-appearance:none;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23555'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;}
+
+.btn{border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;padding:10px 18px;transition:opacity 0.15s;}
+.btn:active{opacity:0.75;}
+.btn-red{background:#e05550;color:#fff;}
+.btn-green{background:#7bc42e;color:#fff;}
+.btn-blue{background:#1a4a8a;color:#e8e8e2;}
+.btn-dark{background:#2a2a2a;color:#ccc;}
+.btn-block{width:100%;padding:12px;margin-top:8px;display:block;text-align:center;}
+.btn-sm{padding:7px 14px;font-size:13px;}
+
+.item-row{display:flex;align-items:center;padding:8px 0;border-bottom:1px solid #262626;font-size:13px;}
+.item-row:last-child{border-bottom:none;}
+.item-name{flex:1;color:#ccc;}
+.item-del{background:none;border:none;color:#3a3a3a;font-size:16px;cursor:pointer;padding:0 2px;line-height:1;}
+.item-del:hover,.item-del:active{color:#e05550;}
+
+.period-bar{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;}
+.period-btn{padding:6px 14px;border-radius:99px;border:1px solid #2a2a2a;background:transparent;color:#555;font-size:12px;cursor:pointer;}
+.period-btn.active{background:#2a2a2a;color:#e8e8e2;border-color:#444;}
+
+.sub-tabs{display:flex;gap:0;margin-bottom:12px;border:1px solid #2a2a2a;border-radius:10px;overflow:hidden;}
+.sub-tab{flex:1;padding:9px;border:none;background:transparent;color:#555;font-size:12px;cursor:pointer;font-weight:500;}
+.sub-tab.active{background:#2a2a2a;color:#e8e8e2;}
+
+.hist-item{display:flex;align-items:center;padding:9px 14px;border-bottom:1px solid #262626;font-size:13px;}
+.hist-item:last-child{border-bottom:none;}
+
+.summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.summary-card{background:#1c1c1c;border:1px solid #2a2a2a;border-radius:10px;padding:12px;text-align:center;}
+.summary-lbl{font-size:10px;color:#555;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;}
+.summary-val{font-size:18px;font-weight:700;letter-spacing:-0.5px;}
+.summary-sub{font-size:10px;color:#444;margin-top:2px;}
+
+.measure-item{display:flex;align-items:center;padding:9px 14px;border-bottom:1px solid #262626;cursor:pointer;}
+.measure-item:last-child{border-bottom:none;}
+.measure-item:active{background:#252525;}
+
+.chart-wrap{background:#1c1c1c;border:1px solid #2a2a2a;border-radius:12px;padding:14px;margin-bottom:12px;}
+.chart-title{font-size:13px;font-weight:500;margin-bottom:10px;color:#aaa;}
+
+.pfield{margin-bottom:10px;}
+.pfield label{font-size:11px;color:#555;display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.04em;}
+.pfield input,.pfield select{width:100%;}
+
+.drive-status{font-size:12px;padding:8px 12px;border-radius:8px;margin-top:8px;display:none;}
+.drive-status.ok{background:#0d2010;color:#7bc42e;}
+.drive-status.err{background:#2a0d0d;color:#e05550;}
+.drive-status.info{background:#0d1f3c;color:#5b9cf6;}
+
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#333;color:#e8e8e2;padding:10px 20px;border-radius:99px;font-size:13px;z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;}
+#toast.show{opacity:1;}
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-thumb{background:#2a2a2a;}
+
+/* Dropdown select styled */
+.dropdown-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.dropdown-row label{font-size:12px;color:#888;min-width:80px;}
+.dropdown-row select{flex:1;}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('gunluk',this)">Günlük</button>
+    <button class="tab-btn" onclick="switchTab('olcum',this)">Ölçüm</button>
+    <button class="tab-btn" onclick="switchTab('gecmis',this)">Geçmiş</button>
+    <button class="tab-btn" onclick="switchTab('profil',this)">Profil</button>
+  </div>
+
+  <!-- ══ GÜNLÜK ══ -->
+  <div class="section active" id="sec-gunluk">
+    <!-- Mor köşegen arka plan -->
+    <svg style="position:fixed;top:0;left:50%;transform:translateX(-50%);width:480px;height:100vh;z-index:0;pointer-events:none;opacity:0.05;" viewBox="0 0 480 900" preserveAspectRatio="none">
+      <polygon points="240,0 480,240 480,900 0,900 0,240" fill="none" stroke="#a36ab5" stroke-width="2"/>
+      <polygon points="240,40 450,270 450,860 30,860 30,270" fill="none" stroke="#a36ab5" stroke-width="1.4"/>
+      <polygon points="240,80 420,300 420,820 60,820 60,300" fill="none" stroke="#a36ab5" stroke-width="0.9"/>
+      <polygon points="240,120 390,330 390,780 90,780 90,330" fill="none" stroke="#a36ab5" stroke-width="0.5"/>
+    </svg>
+    <!-- Logo + tagline -->
+    <div style="display:flex;flex-direction:column;align-items:center;padding:18px 0 4px;position:relative;z-index:1;">
+      <svg width="110" height="72" viewBox="0 0 120 90">
+        <path d="M38,5 L22,42 L32,42 L24,82 L54,36 L40,36 Z" fill="#a36ab5"/>
+        <text x="78" y="46" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="18" font-weight="800" fill="#e8e2f0" letter-spacing="1">FIT</text>
+        <text x="78" y="63" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="11" font-weight="400" fill="#a36ab5" letter-spacing="4">MERVE</text>
+      </svg>
+      <div style="font-family:'Segoe Script','Comic Sans MS','Bradley Hand',cursive;font-size:9px;color:rgba(200,159,212,0.6);margin-top:2px;letter-spacing:0.3px;">her şey kocam için...</div>
+    </div>
+    <div class="day-header" style="position:relative;z-index:1;">
+      <div class="day-nav">
+        <button class="nav-btn" onclick="changeDay(-1)">‹</button>
+        <span class="day-label" id="day-label">Bugün</span>
+        <button class="nav-btn" onclick="changeDay(1)">›</button>
+      </div>
+      <span id="day-dot" style="font-size:24px;">🟡</span>
+    </div>
+
+    <div class="score-card yellow" id="score-card">
+      <div class="score-dot" id="score-dot">🟡</div>
+      <div class="score-range" id="score-range">— kcal açık</div>
+      <div class="score-net" id="net-score">0</div>
+      <div class="score-sub">net kalori (orta tahmin) · alınan − yakılan</div>
+      <div class="prog-bg"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+      <div class="score-goal" id="score-goal">Profili doldur → hedef hesaplanır</div>
+    </div>
+
+    <div class="macro-grid">
+      <div class="macro-card">
+        <div class="macro-lbl">Alınan (min–maks)</div>
+        <div class="macro-val" id="total-in" style="color:#e05550;">0</div>
+        <div class="macro-sub" id="total-in-range">kcal</div>
+      </div>
+      <div class="macro-card">
+        <div class="macro-lbl">Yakılan</div>
+        <div class="macro-val" id="total-out" style="color:#7bc42e;">0</div>
+        <div class="macro-sub">bazal + aktivite</div>
+      </div>
+    </div>
+
+    <!-- Kalori aralığı girişi -->
+    <div class="card card-pad">
+      <div style="font-size:14px;font-weight:600;margin-bottom:12px;">Alınan kalori</div>
+      <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center;margin-bottom:10px;">
+        <div>
+          <div style="font-size:10px;color:#555;margin-bottom:4px;">MİN</div>
+          <input type="number" id="kcal-min-inp" placeholder="1600" min="0" style="width:100%;"/>
+        </div>
+        <span style="color:#444;font-size:18px;text-align:center;">–</span>
+        <div>
+          <div style="font-size:10px;color:#555;margin-bottom:4px;">MAKS</div>
+          <input type="number" id="kcal-max-inp" placeholder="2000" min="0" style="width:100%;"/>
+        </div>
+      </div>
+      <div style="font-size:11px;color:#555;margin-bottom:8px;">Emin değilsen aralık gir, orta nokta hesaplanır.</div>
+      <button class="btn btn-red" style="width:100%;padding:10px;" onclick="saveKcalIn()">Kaydet</button>
+    </div>
+
+    <!-- Aktivite girişi -->
+    <div class="card card-pad">
+      <div style="font-size:14px;font-weight:600;margin-bottom:10px;">Aktivite</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <input type="text" id="act-name-inp" placeholder="Aktivite adı (ör: Yürüyüş)" style="width:100%;"/>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input type="number" id="act-kcal-inp" placeholder="0" style="flex:1;" min="0"/>
+          <span style="color:#555;font-size:13px;white-space:nowrap;">kcal yaktım</span>
+          <button class="btn btn-green btn-sm" onclick="addActivity()">Ekle</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="act-list"></div>
+  </div>
+
+  <!-- ══ ÖLÇÜM ══ -->
+  <div class="section" id="sec-olcum">
+    <div class="sub-tabs" style="margin-top:12px;">
+      <button class="sub-tab active" id="olcum-tab-kompozisyon" onclick="switchOlcumTab('kompozisyon',this)">Kilo & Yağ</button>
+      <button class="sub-tab" id="olcum-tab-vucut" onclick="switchOlcumTab('vucut',this)">Vücut Ölçüleri</button>
+    </div>
+
+    <!-- Kilo & Yağ -->
+    <div id="olcum-sec-kompozisyon">
+      <div class="sec-title">Kilo & Yağ Oranı Girişi</div>
+      <div class="card card-pad">
+        <div class="dropdown-row">
+          <label>Tarih</label>
+          <input type="date" id="bk-date" style="flex:1;font-size:13px;padding:7px 10px;"/>
+          <button class="btn btn-dark btn-sm" onclick="setDateToday('bk-date')">Bugün</button>
+        </div>
+        <div class="dropdown-row">
+          <label>Kilo (kg)</label>
+          <select id="bk-kilo" style="flex:1;"></select>
+        </div>
+        <div class="dropdown-row">
+          <label>Yağ oranı (%)</label>
+          <select id="bk-yag" style="flex:1;"></select>
+        </div>
+        <button class="btn btn-red" style="width:100%;padding:10px;margin-top:8px;" onclick="saveBodyComp()">Kaydet</button>
+      </div>
+      <div class="sec-title">Kaydedilen</div>
+      <div class="card" id="bk-list">
+        <div style="padding:14px;font-size:13px;color:#444;">Henüz kayıt yok</div>
+      </div>
+    </div>
+
+    <!-- Vücut Ölçüleri -->
+    <div id="olcum-sec-vucut" style="display:none;">
+      <div class="sec-title">Vücut Ölçüleri Girişi</div>
+      <div class="card card-pad">
+        <div class="dropdown-row">
+          <label>Tarih</label>
+          <input type="date" id="vo-date" style="flex:1;font-size:13px;padding:7px 10px;"/>
+          <button class="btn btn-dark btn-sm" onclick="setDateToday('vo-date')">Bugün</button>
+        </div>
+        <div class="dropdown-row"><label>Göğüs (cm)</label><select id="vo-gogus" style="flex:1;"></select></div>
+        <div class="dropdown-row"><label>Kol sağ (cm)</label><select id="vo-kol" style="flex:1;"></select></div>
+        <div class="dropdown-row"><label>Bacak sağ (cm)</label><select id="vo-bacak" style="flex:1;"></select></div>
+        <div class="dropdown-row"><label>Omuz (cm)</label><select id="vo-omuz" style="flex:1;"></select></div>
+        <div class="dropdown-row"><label>Bel (cm)</label><select id="vo-bel" style="flex:1;"></select></div>
+        <button class="btn btn-red" style="width:100%;padding:10px;margin-top:8px;" onclick="saveBodyMeasure()">Kaydet</button>
+      </div>
+      <div class="sec-title">Kaydedilen</div>
+      <div class="card" id="vo-list">
+        <div style="padding:14px;font-size:13px;color:#444;">Henüz kayıt yok</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ GEÇMİŞ ══ -->
+  <div class="section" id="sec-gecmis">
+    <div class="period-bar" style="padding-top:12px;">
+      <button class="period-btn active" onclick="setPeriod(7,this)">7 gün</button>
+      <button class="period-btn" onclick="setPeriod(30,this)">30 gün</button>
+      <button class="period-btn" onclick="setPeriod(90,this)">90 gün</button>
+      <button class="period-btn" onclick="setPeriod(365,this)">1 yıl</button>
+    </div>
+
+    <div class="sub-tabs">
+      <button class="sub-tab active" onclick="switchHistTab('kalori',this)">Kalori</button>
+      <button class="sub-tab" onclick="switchHistTab('kompozisyon',this)">Kilo & Yağ</button>
+      <button class="sub-tab" onclick="switchHistTab('vucut',this)">Vücut</button>
+    </div>
+
+    <!-- Kalori geçmiş -->
+    <div id="hist-sec-kalori">
+      <!-- Özet -->
+      <div class="summary-grid" id="hist-summary-grid">
+        <div class="summary-card">
+          <div class="summary-lbl">Min Açık (toplam)</div>
+          <div class="summary-val" id="sum-min" style="color:#5b9cf6;">—</div>
+          <div class="summary-sub">kcal</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-lbl">Maks Açık (toplam)</div>
+          <div class="summary-val" id="sum-max" style="color:#7bc42e;">—</div>
+          <div class="summary-sub">kcal</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-lbl">Ort. Net/gün</div>
+          <div class="summary-val" id="sum-avg" style="color:#d4991a;">—</div>
+          <div class="summary-sub">kcal</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-lbl">Kayıtlı gün</div>
+          <div class="summary-val" id="sum-days" style="color:#888;">—</div>
+          <div class="summary-sub">gün</div>
+        </div>
+      </div>
+      <div class="card" id="hist-list">
+        <div style="padding:14px;font-size:13px;color:#444;">Henüz kayıt yok</div>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-title">Kalori trendi</div>
+        <div style="position:relative;height:200px;"><canvas id="trend-chart"></canvas></div>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-title">Net kalori aralığı</div>
+        <div style="position:relative;height:170px;"><canvas id="net-chart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Kilo & Yağ geçmiş -->
+    <div id="hist-sec-kompozisyon" style="display:none;">
+      <div class="chart-wrap">
+        <div class="chart-title">Kilo (kg)</div>
+        <div style="position:relative;height:200px;"><canvas id="kilo-chart"></canvas></div>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-title">Yağ oranı (%)</div>
+        <div style="position:relative;height:180px;"><canvas id="yag-chart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Vücut ölçüleri geçmiş -->
+    <div id="hist-sec-vucut" style="display:none;">
+      <div class="chart-wrap">
+        <div class="chart-title">Vücut ölçüleri (cm)</div>
+        <div style="position:relative;height:240px;"><canvas id="vucut-chart"></canvas></div>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-title">Bel (cm)</div>
+        <div style="position:relative;height:180px;"><canvas id="bel-chart"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PROFİL ══ -->
+  <div class="section" id="sec-profil">
+    <div class="sec-title">Google Drive Sync</div>
+    <div class="card card-pad">
+      <div class="pfield">
+        <label>Client ID</label>
+        <input type="text" id="drive-client-id" placeholder="xxxx.apps.googleusercontent.com" style="width:100%;font-size:12px;"/>
+      </div>
+      <button class="btn btn-blue btn-block" onclick="driveAuth()">Google ile Bağlan</button>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button class="btn btn-dark btn-sm" style="flex:1;" onclick="drivePull()">⟳ Yenile</button>
+        <button class="btn btn-dark btn-sm" style="flex:1;" onclick="drivePush()">↑ Drive'a Kaydet</button>
+      </div>
+      <div class="drive-status" id="drive-status"></div>
+    </div>
+
+    <div class="sec-title">Vücut Bilgileri</div>
+    <div class="card card-pad">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="pfield"><label>Boy (cm)</label><input type="number" id="p-boy" placeholder="175"/></div>
+        <div class="pfield"><label>Kilo (kg)</label><input type="number" id="p-kilo" placeholder="75"/></div>
+        <div class="pfield"><label>Yaş</label><input type="number" id="p-yas" placeholder="30"/></div>
+        <div class="pfield"><label>Cinsiyet</label>
+          <select id="p-cin"><option value="erkek">Erkek</option><option value="kadin">Kadın</option></select>
+        </div>
+      </div>
+      <div class="pfield">
+        <label>Aktivite Seviyesi</label>
+        <select id="p-akt" style="width:100%;">
+          <option value="1.2">Hareketsiz</option>
+          <option value="1.375">Hafif aktif (1-3 gün)</option>
+          <option value="1.55" selected>Orta aktif (3-5 gün)</option>
+          <option value="1.725">Çok aktif (6-7 gün)</option>
+          <option value="1.9">Ekstra aktif</option>
+        </select>
+      </div>
+      <button class="btn btn-blue btn-block" onclick="calcBMR()">Bazal Metabolizmayı Hesapla</button>
+      <div id="bmr-result" style="display:none;margin-top:10px;padding:10px;background:#0d2010;border-radius:8px;font-size:13px;color:#7bc42e;line-height:1.8;"></div>
+    </div>
+
+    <div class="sec-title">Hedef</div>
+    <div class="card card-pad">
+      <div class="pfield">
+        <label>Günlük Kalori Hedefi (kcal)</label>
+        <input type="number" id="p-hedef" placeholder="2000" style="width:100%;"/>
+      </div>
+      <div class="pfield">
+        <label>Amaç</label>
+        <select id="p-amac" style="width:100%;">
+          <option value="kilo-ver">Kilo ver</option>
+          <option value="koru" selected>Kiloyu koru</option>
+          <option value="al">Kilo al</option>
+        </select>
+      </div>
+      <button class="btn btn-red btn-block" onclick="saveProfile()">Profili Kaydet</button>
+    </div>
+
+    <div class="sec-title">Data Yönetimi</div>
+    <div class="card card-pad" style="display:flex;flex-direction:column;gap:8px;">
+      <button class="btn btn-dark" style="width:100%;padding:11px;" onclick="exportData()">📤 Dışa Aktar (JSON)</button>
+      <button class="btn btn-dark" style="width:100%;padding:11px;" onclick="importData()">📥 İçe Aktar (JSON)</button>
+      <input type="file" id="import-file" accept=".json" style="display:none;" onchange="handleImport(event)"/>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+// ══════════════════════════════════════
+// STATE
+// ══════════════════════════════════════
+const S = {
+  days: {},
+  bodyComp: [],    // [{date, kilo, yag}]
+  bodyMeasures: [], // [{date, gogus, kol, bacak, omuz, bel}]
+  profile: {boy:175,kilo:75,yas:30,cin:'erkek',akt:1.55,hedef:2000,amac:'koru'},
+  drive: {clientId:'',accessToken:'',fileId:''}
+};
+let dayOffset = 0;
+let histPeriod = 7;
+let histTab = 'kalori';
+let olcumTab = 'kompozisyon';
+
+// ══════════════════════════════════════
+// STORAGE
+// ══════════════════════════════════════
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function lsGet(k){try{return JSON.parse(localStorage.getItem(k));}catch(e){return null;}}
+function saveLocal(){
+  lsSet('koc_days',S.days);
+  lsSet('koc_bodyComp',S.bodyComp);
+  lsSet('koc_bodyMeasures',S.bodyMeasures);
+  lsSet('koc_profile',S.profile);
+  lsSet('koc_drive',S.drive);
+}
+function loadLocal(){
+  const d=lsGet('koc_days');          if(d) Object.assign(S.days,d);
+  const bc=lsGet('koc_bodyComp');     if(bc) S.bodyComp=bc;
+  const bm=lsGet('koc_bodyMeasures'); if(bm) S.bodyMeasures=bm;
+  const p=lsGet('koc_profile');       if(p) Object.assign(S.profile,p);
+  const dr=lsGet('koc_drive');        if(dr) Object.assign(S.drive,dr);
+}
+
+// ══════════════════════════════════════
+// DROPDOWN BUILDERS
+// ══════════════════════════════════════
+function buildSelect(selectId, min, max, step, unit, lastVal){
+  const sel = document.getElementById(selectId);
+  sel.innerHTML = '';
+  // "Girmek istemiyorum" seçeneği
+  const opt0 = document.createElement('option');
+  opt0.value = '';
+  opt0.textContent = '— girmiyorum';
+  sel.appendChild(opt0);
+  for(let v=min; v<=max; v=Math.round((v+step)*1000)/1000){
+    const opt = document.createElement('option');
+    opt.value = v;
+    opt.textContent = v + ' ' + unit;
+    sel.appendChild(opt);
+  }
+  if(lastVal !== undefined && lastVal !== null) sel.value = lastVal;
+}
+
+function buildAllDropdowns(){
+  // Son girişleri al
+  const lastBC = S.bodyComp.length ? S.bodyComp[S.bodyComp.length-1] : {};
+  const lastVO = S.bodyMeasures.length ? S.bodyMeasures[S.bodyMeasures.length-1] : {};
+  buildSelect('bk-kilo', 40, 200, 0.1, 'kg', lastBC.kilo||null);
+  buildSelect('bk-yag',  3,  50,  0.1, '%',  lastBC.yag||null);
+  buildSelect('vo-gogus', 60, 160, 0.5, 'cm', lastVO.gogus||null);
+  buildSelect('vo-kol',   20, 60,  0.5, 'cm', lastVO.kol||null);
+  buildSelect('vo-bacak', 40, 100, 0.5, 'cm', lastVO.bacak||null);
+  buildSelect('vo-omuz',  80, 160, 0.5, 'cm', lastVO.omuz||null);
+  buildSelect('vo-bel',   40, 120, 0.5, 'cm', lastVO.bel||null);
+}
+
+// ══════════════════════════════════════
+// DATE HELPERS
+// ══════════════════════════════════════
+function keyFromOffset(o){
+  const d=new Date(); d.setDate(d.getDate()+o);
+  return d.toISOString().split('T')[0];
+}
+function labelFromOffset(o){
+  if(o===0) return 'Bugün';
+  if(o===-1) return 'Dün';
+  const d=new Date(); d.setDate(d.getDate()+o);
+  return d.toLocaleDateString('tr-TR',{day:'numeric',month:'short'});
+}
+function setDateToday(id){
+  document.getElementById(id).value = new Date().toISOString().split('T')[0];
+}
+function getDay(o){
+  const k=keyFromOffset(o===undefined?dayOffset:o);
+  if(!S.days[k]) S.days[k]={kcal_min:0,kcal_max:0,activities:[],status:'yellow'};
+  return S.days[k];
+}
+function changeDay(delta){
+  if(dayOffset+delta>0) return;
+  dayOffset+=delta;
+  renderDay();
+}
+
+// ══════════════════════════════════════
+// BMR
+// ══════════════════════════════════════
+function getBMR(p){
+  const {boy,kilo,yas,cin}=p;
+  if(!boy||!kilo||!yas) return 1800;
+  const mifflin=cin==='erkek'?(10*kilo)+(6.25*boy)-(5*yas)+5:(10*kilo)+(6.25*boy)-(5*yas)-161;
+  const harris=cin==='erkek'?88.36+(13.4*kilo)+(4.8*boy)-(5.7*yas):447.6+(9.2*kilo)+(3.1*boy)-(4.3*yas);
+  return Math.round((mifflin+harris)/2);
+}
+function calcBMR(){
+  const p=readProfileFields();
+  if(!p.boy||!p.kilo||!p.yas){toast('Tüm alanları doldur');return;}
+  const mifflin=p.cin==='erkek'?Math.round((10*p.kilo)+(6.25*p.boy)-(5*p.yas)+5):Math.round((10*p.kilo)+(6.25*p.boy)-(5*p.yas)-161);
+  const harris=p.cin==='erkek'?Math.round(88.36+(13.4*p.kilo)+(4.8*p.boy)-(5.7*p.yas)):Math.round(447.6+(9.2*p.kilo)+(3.1*p.boy)-(4.3*p.yas));
+  const avg=Math.round((mifflin+harris)/2);
+  const tdee=Math.round(avg*parseFloat(p.akt));
+  const el=document.getElementById('bmr-result');
+  el.style.display='block';
+  el.innerHTML=`Mifflin: <strong>${mifflin}</strong> &nbsp;|&nbsp; Harris: <strong>${harris}</strong><br>Ortalama bazal: <strong>${avg} kcal</strong><br>TDEE: <strong>${tdee} kcal</strong>`;
+  document.getElementById('p-hedef').value=tdee;
+}
+
+// ══════════════════════════════════════
+// STATUS
+// ══════════════════════════════════════
+function getStatus(net){
+  if(net<-500) return 'blue';
+  if(net<-200) return 'green';
+  if(net<=200)  return 'yellow';
+  return 'red';
+}
+const DOT={blue:'🔵',green:'🟢',yellow:'🟡',red:'🔴'};
+const COLORS={blue:'#5b9cf6',green:'#7bc42e',yellow:'#d4991a',red:'#e05550'};
+
+// ══════════════════════════════════════
+// RENDER DAY
+// ══════════════════════════════════════
+function renderDay(){
+  document.getElementById('day-label').textContent=labelFromOffset(dayOffset);
+  const day=getDay();
+  const bmr=getBMR(S.profile);
+  const actKcal=(day.activities||[]).reduce((a,x)=>a+x.kcal,0);
+  const totalOut=bmr+actKcal;
+  const minIn=day.kcal_min||0;
+  const maxIn=day.kcal_max||minIn;
+  const midIn=Math.round((minIn+maxIn)/2);
+  const netMid=midIn-totalOut;
+  const netMin=minIn-totalOut;
+  const netMax=maxIn-totalOut;
+  const status=getStatus(netMid);
+  day.status=status;
+
+  const card=document.getElementById('score-card');
+  card.className='score-card '+status;
+  document.getElementById('score-dot').textContent=DOT[status];
+  document.getElementById('day-dot').textContent=DOT[status];
+  document.getElementById('net-score').textContent=(netMid>0?'+':'')+netMid;
+
+  // Aralık göster
+  const hasRange = maxIn>minIn;
+  document.getElementById('score-range').textContent = hasRange
+    ? `${netMin>0?'+':''}${netMin} → ${netMax>0?'+':''}${netMax} kcal aralığı`
+    : `${netMid>0?'+':''}${netMid} kcal net`;
+
+  document.getElementById('total-in').textContent = hasRange ? midIn : minIn;
+  document.getElementById('total-in-range').textContent = hasRange ? `kcal (${minIn}–${maxIn})` : 'kcal';
+  document.getElementById('total-out').textContent=totalOut;
+
+  const hedef=parseFloat(S.profile.hedef)||2000;
+  const pct=Math.min(100,Math.round((midIn/hedef)*100));
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('score-goal').textContent=`Hedef: ${hedef} kcal — %${pct} tamamlandı`;
+
+  // Fill inputs
+  if(minIn) document.getElementById('kcal-min-inp').value=minIn;
+  else document.getElementById('kcal-min-inp').value='';
+  if(maxIn && maxIn!==minIn) document.getElementById('kcal-max-inp').value=maxIn;
+  else document.getElementById('kcal-max-inp').value='';
+
+  // Aktivite listesi
+  const actEl=document.getElementById('act-list');
+  const acts=day.activities||[];
+  if(!acts.length){actEl.innerHTML='';return;}
+  actEl.innerHTML=`<div class="card card-pad">
+    <div style="font-size:13px;font-weight:600;color:#888;margin-bottom:6px;">Aktiviteler</div>
+    ${acts.map((a,i)=>`<div class="item-row">
+      <span class="item-name">${a.name}</span>
+      <span style="color:#7bc42e;font-size:12px;">+${a.kcal} kcal</span>
+      <button class="item-del" onclick="removeActivity(${i})">✕</button>
+    </div>`).join('')}
+  </div>`;
+}
+
+function saveKcalIn(){
+  const minVal=parseInt(document.getElementById('kcal-min-inp').value)||0;
+  const maxVal=parseInt(document.getElementById('kcal-max-inp').value)||0;
+  if(minVal<0||maxVal<0){toast('Geçerli değer gir');return;}
+  const day=getDay();
+  day.kcal_min=minVal;
+  day.kcal_max=maxVal>=minVal?maxVal:minVal;
+  saveLocal();
+  renderDay();
+  toast('Kaydedildi');
+}
+
+function addActivity(){
+  const name=document.getElementById('act-name-inp').value.trim()||'Aktivite';
+  const kcal=parseInt(document.getElementById('act-kcal-inp').value);
+  if(isNaN(kcal)||kcal<0){toast('Geçerli kalori gir');return;}
+  const day=getDay();
+  if(!day.activities) day.activities=[];
+  day.activities.push({name,kcal});
+  document.getElementById('act-name-inp').value='';
+  document.getElementById('act-kcal-inp').value='';
+  saveLocal();
+  renderDay();
+  toast('Eklendi');
+}
+
+function removeActivity(i){
+  getDay().activities.splice(i,1);
+  saveLocal();
+  renderDay();
+}
+
+// ══════════════════════════════════════
+// ÖLÇÜM — Kilo & Yağ
+// ══════════════════════════════════════
+function saveBodyComp(){
+  const dateVal=document.getElementById('bk-date').value;
+  if(!dateVal){toast('Tarih seç');return;}
+  const kilo=document.getElementById('bk-kilo').value;
+  const yag=document.getElementById('bk-yag').value;
+  if(!kilo&&!yag){toast('En az bir değer gir');return;}
+  const entry={date:dateVal, kilo:kilo?parseFloat(kilo):null, yag:yag?parseFloat(yag):null};
+  const idx=S.bodyComp.findIndex(m=>m.date===dateVal);
+  if(idx>=0) S.bodyComp[idx]=entry; else S.bodyComp.push(entry);
+  S.bodyComp.sort((a,b)=>a.date.localeCompare(b.date));
+  saveLocal();
+  buildAllDropdowns();
+  renderBodyCompList();
+  toast('Kaydedildi ('+dateVal+')');
+}
+
+function renderBodyCompList(){
+  const el=document.getElementById('bk-list');
+  if(!S.bodyComp.length){el.innerHTML='<div style="padding:14px;font-size:13px;color:#444;">Henüz kayıt yok</div>';return;}
+  el.innerHTML=S.bodyComp.slice().reverse().map((m,ri)=>{
+    const idx=S.bodyComp.length-1-ri;
+    const vals=[];
+    if(m.kilo) vals.push(m.kilo+'kg');
+    if(m.yag)  vals.push('%'+m.yag+' yağ');
+    return `<div class="measure-item" onclick="loadBodyCompEdit(${idx})">
+      <span style="font-size:12px;color:#666;min-width:80px;">${m.date}</span>
+      <span style="flex:1;font-size:13px;color:#ccc;">${vals.join(' · ')||'—'}</span>
+      <button class="item-del" onclick="event.stopPropagation();deleteBodyComp(${idx})">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function loadBodyCompEdit(idx){
+  const m=S.bodyComp[idx];
+  document.getElementById('bk-date').value=m.date;
+  if(m.kilo) document.getElementById('bk-kilo').value=m.kilo;
+  if(m.yag)  document.getElementById('bk-yag').value=m.yag;
+}
+
+function deleteBodyComp(idx){
+  if(!confirm('Sil?')) return;
+  S.bodyComp.splice(idx,1);
+  saveLocal();
+  renderBodyCompList();
+}
+
+// ══════════════════════════════════════
+// ÖLÇÜM — Vücut Ölçüleri
+// ══════════════════════════════════════
+function saveBodyMeasure(){
+  const dateVal=document.getElementById('vo-date').value;
+  if(!dateVal){toast('Tarih seç');return;}
+  const fields=['gogus','kol','bacak','omuz','bel'];
+  const entry={date:dateVal};
+  let hasAny=false;
+  fields.forEach(f=>{
+    const v=document.getElementById('vo-'+f).value;
+    entry[f]=v?parseFloat(v):null;
+    if(v) hasAny=true;
+  });
+  if(!hasAny){toast('En az bir değer gir');return;}
+  const idx=S.bodyMeasures.findIndex(m=>m.date===dateVal);
+  if(idx>=0) S.bodyMeasures[idx]=entry; else S.bodyMeasures.push(entry);
+  S.bodyMeasures.sort((a,b)=>a.date.localeCompare(b.date));
+  saveLocal();
+  buildAllDropdowns();
+  renderBodyMeasureList();
+  toast('Kaydedildi ('+dateVal+')');
+}
+
+function renderBodyMeasureList(){
+  const el=document.getElementById('vo-list');
+  if(!S.bodyMeasures.length){el.innerHTML='<div style="padding:14px;font-size:13px;color:#444;">Henüz kayıt yok</div>';return;}
+  el.innerHTML=S.bodyMeasures.slice().reverse().map((m,ri)=>{
+    const idx=S.bodyMeasures.length-1-ri;
+    const vals=[];
+    if(m.bel)   vals.push('Bel:'+m.bel);
+    if(m.gogus) vals.push('G:'+m.gogus);
+    return `<div class="measure-item" onclick="loadBodyMeasureEdit(${idx})">
+      <span style="font-size:12px;color:#666;min-width:80px;">${m.date}</span>
+      <span style="flex:1;font-size:12px;color:#ccc;">${vals.join(' · ')||'—'}</span>
+      <button class="item-del" onclick="event.stopPropagation();deleteBodyMeasure(${idx})">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function loadBodyMeasureEdit(idx){
+  const m=S.bodyMeasures[idx];
+  document.getElementById('vo-date').value=m.date;
+  ['gogus','kol','bacak','omuz','bel'].forEach(f=>{
+    if(m[f]) document.getElementById('vo-'+f).value=m[f];
+  });
+}
+
+function deleteBodyMeasure(idx){
+  if(!confirm('Sil?')) return;
+  S.bodyMeasures.splice(idx,1);
+  saveLocal();
+  renderBodyMeasureList();
+}
+
+function switchOlcumTab(tab,btn){
+  olcumTab=tab;
+  document.getElementById('olcum-sec-kompozisyon').style.display=tab==='kompozisyon'?'block':'none';
+  document.getElementById('olcum-sec-vucut').style.display=tab==='vucut'?'block':'none';
+  document.querySelectorAll('#sec-olcum .sub-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ══════════════════════════════════════
+// GEÇMİŞ
+// ══════════════════════════════════════
+let trendC=null,netC=null,kiloC=null,yagC=null,vucutC=null,belC=null;
+
+function setPeriod(days,btn){
+  histPeriod=days;
+  document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderHistory();
+}
+
+function switchHistTab(tab,btn){
+  histTab=tab;
+  ['kalori','kompozisyon','vucut'].forEach(t=>{
+    document.getElementById('hist-sec-'+t).style.display=t===tab?'block':'none';
+  });
+  document.querySelectorAll('#sec-gecmis .sub-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderHistory();
+}
+
+function renderHistory(){
+  const bmr=getBMR(S.profile);
+  const cutoffKey=keyFromOffset(-histPeriod);
+
+  if(histTab==='kalori'){
+    const entries=[];
+    for(let i=histPeriod-1;i>=0;i--){
+      const k=keyFromOffset(-i);
+      const d=S.days[k];
+      if(d){
+        const act=(d.activities||[]).reduce((a,x)=>a+x.kcal,0);
+        const to=bmr+act;
+        const minIn=d.kcal_min||0;
+        const maxIn=d.kcal_max||minIn;
+        const midIn=Math.round((minIn+maxIn)/2);
+        const netMid=midIn-to;
+        const netMin=minIn-to;
+        const netMax=maxIn-to;
+        entries.push({date:k,label:i===0?'Bug.':i===1?'Dün':k.slice(5),
+          ti:midIn,minIn,maxIn,to,netMid,netMin,netMax,status:d.status||getStatus(netMid)});
+      }
+    }
+
+    // Özet
+    if(entries.length){
+      const totalNetMin=entries.reduce((a,e)=>a+e.netMin,0);
+      const totalNetMax=entries.reduce((a,e)=>a+e.netMax,0);
+      const avgNet=Math.round(entries.reduce((a,e)=>a+e.netMid,0)/entries.length);
+      document.getElementById('sum-min').textContent=(totalNetMin>0?'+':'')+totalNetMin;
+      document.getElementById('sum-max').textContent=(totalNetMax>0?'+':'')+totalNetMax;
+      document.getElementById('sum-avg').textContent=(avgNet>0?'+':'')+avgNet;
+      document.getElementById('sum-days').textContent=entries.length;
+      document.getElementById('sum-min').style.color=totalNetMin<0?COLORS.green:COLORS.red;
+      document.getElementById('sum-max').style.color=totalNetMax<0?COLORS.green:COLORS.red;
+      document.getElementById('sum-avg').style.color=COLORS[getStatus(avgNet)];
+    }
+
+    // Liste
+    const el=document.getElementById('hist-list');
+    if(!entries.length){
+      el.innerHTML='<div style="padding:14px;font-size:13px;color:#444;">Bu dönemde kayıt yok</div>';
+    } else {
+      el.innerHTML=entries.slice().reverse().map(e=>`
+        <div class="hist-item">
+          <span style="font-size:16px;margin-right:8px;">${DOT[e.status]}</span>
+          <span style="color:#666;font-size:12px;min-width:44px;">${e.label}</span>
+          <span style="flex:1;margin:0 8px;color:#ccc;">${e.ti} kcal</span>
+          <span style="font-size:11px;color:#555;">${e.minIn<e.maxIn?e.minIn+'–'+e.maxIn:''}</span>
+          <span style="font-size:12px;margin-left:8px;color:${e.netMid<0?COLORS.green:COLORS.red};">${e.netMid>0?'+':''}${e.netMid}</span>
+        </div>`).join('');
+    }
+
+    // Trend chart
+    const labels=entries.map(e=>e.label);
+    const baseOpts={responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,labels:{color:'#555',font:{size:10},boxWidth:8,padding:10}}},
+      scales:{y:{ticks:{color:'#555',font:{size:10}},grid:{color:'#1e1e1e'}},
+              x:{ticks:{color:'#555',font:{size:10},maxTicksLimit:10},grid:{color:'#1e1e1e'}}}};
+    if(trendC) trendC.destroy();
+    trendC=new Chart(document.getElementById('trend-chart'),{type:'line',data:{labels,datasets:[
+      {label:'Alınan (ort)',data:entries.map(e=>e.ti),borderColor:'#e05550',backgroundColor:'rgba(224,85,80,0.06)',tension:0.3,spanGaps:true,pointRadius:entries.length>30?0:3},
+      {label:'Yakılan',data:entries.map(e=>e.to),borderColor:'#7bc42e',backgroundColor:'rgba(123,196,46,0.06)',tension:0.3,spanGaps:true,pointRadius:entries.length>30?0:3}
+    ]},options:baseOpts});
+
+    // Net range chart — min/max band
+    if(netC) netC.destroy();
+    netC=new Chart(document.getElementById('net-chart'),{type:'bar',data:{labels,datasets:[
+      {label:'Net (ort)',data:entries.map(e=>e.netMid),backgroundColor:entries.map(e=>COLORS[e.status]+'99'),borderRadius:3,borderSkipped:false},
+      {label:'Min',data:entries.map(e=>e.netMin),type:'line',borderColor:'#5b9cf6',borderWidth:1.5,borderDash:[4,3],pointRadius:0,fill:false,tension:0.3,spanGaps:true},
+      {label:'Maks',data:entries.map(e=>e.netMax),type:'line',borderColor:'#e05550',borderWidth:1.5,borderDash:[4,3],pointRadius:0,fill:false,tension:0.3,spanGaps:true}
+    ]},options:{...baseOpts,plugins:{legend:{display:true,labels:{color:'#555',font:{size:10},boxWidth:8}}}}});
+
+  } else if(histTab==='kompozisyon'){
+    const ms=S.bodyComp.filter(m=>m.date>=cutoffKey);
+    const mlabels=ms.map(m=>m.date.slice(5));
+    const cOpts={responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{y:{ticks:{color:'#555',font:{size:10}},grid:{color:'#1e1e1e'}},
+              x:{ticks:{color:'#555',font:{size:10},maxTicksLimit:10},grid:{color:'#1e1e1e'}}}};
+    if(kiloC) kiloC.destroy();
+    kiloC=new Chart(document.getElementById('kilo-chart'),{type:'line',data:{labels:mlabels,datasets:[{
+      data:ms.map(m=>m.kilo||null),borderColor:'#5b9cf6',backgroundColor:'rgba(91,156,246,0.08)',
+      tension:0.3,spanGaps:true,pointRadius:4,borderWidth:2
+    }]},options:cOpts});
+    if(yagC) yagC.destroy();
+    yagC=new Chart(document.getElementById('yag-chart'),{type:'line',data:{labels:mlabels,datasets:[{
+      data:ms.map(m=>m.yag||null),borderColor:'#d4991a',backgroundColor:'rgba(212,153,26,0.08)',
+      tension:0.3,spanGaps:true,pointRadius:4,borderWidth:2
+    }]},options:cOpts});
+
+  } else if(histTab==='vucut'){
+    const ms=S.bodyMeasures.filter(m=>m.date>=cutoffKey);
+    const mlabels=ms.map(m=>m.date.slice(5));
+    const cOpts2={responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,labels:{color:'#555',font:{size:10},boxWidth:8,padding:8}}},
+      scales:{y:{ticks:{color:'#555',font:{size:10}},grid:{color:'#1e1e1e'}},
+              x:{ticks:{color:'#555',font:{size:10},maxTicksLimit:10},grid:{color:'#1e1e1e'}}}};
+    if(vucutC) vucutC.destroy();
+    vucutC=new Chart(document.getElementById('vucut-chart'),{type:'line',data:{labels:mlabels,datasets:[
+      {label:'Göğüs',data:ms.map(m=>m.gogus||null),borderColor:'#e05550',tension:0.3,spanGaps:true,pointRadius:3},
+      {label:'Kol',  data:ms.map(m=>m.kol||null),  borderColor:'#7bc42e',tension:0.3,spanGaps:true,pointRadius:3},
+      {label:'Bacak',data:ms.map(m=>m.bacak||null), borderColor:'#5b9cf6',tension:0.3,spanGaps:true,pointRadius:3},
+      {label:'Omuz', data:ms.map(m=>m.omuz||null),  borderColor:'#d4991a',tension:0.3,spanGaps:true,pointRadius:3},
+      {label:'Bel',  data:ms.map(m=>m.bel||null),   borderColor:'#a36ab5',tension:0.3,spanGaps:true,pointRadius:3},
+    ]},options:cOpts2});
+    if(belC) belC.destroy();
+    belC=new Chart(document.getElementById('bel-chart'),{type:'line',data:{labels:mlabels,datasets:[{
+      data:ms.map(m=>m.bel||null),borderColor:'#a36ab5',backgroundColor:'rgba(163,106,181,0.08)',
+      tension:0.3,spanGaps:true,pointRadius:4,borderWidth:2
+    }]},options:{...cOpts2,plugins:{legend:{display:false}}}});
+  }
+}
+
+// ══════════════════════════════════════
+// PROFİL
+// ══════════════════════════════════════
+function readProfileFields(){
+  return{boy:parseFloat(document.getElementById('p-boy').value)||S.profile.boy,
+    kilo:parseFloat(document.getElementById('p-kilo').value)||S.profile.kilo,
+    yas:parseFloat(document.getElementById('p-yas').value)||S.profile.yas,
+    cin:document.getElementById('p-cin').value,
+    akt:parseFloat(document.getElementById('p-akt').value),
+    hedef:parseFloat(document.getElementById('p-hedef').value)||S.profile.hedef,
+    amac:document.getElementById('p-amac').value};
+}
+function saveProfile(){
+  S.profile=readProfileFields();
+  saveLocal();
+  renderDay();
+  toast('Profil kaydedildi! Bazal: '+getBMR(S.profile)+' kcal');
+}
+function fillProfileFields(){
+  const p=S.profile;
+  document.getElementById('p-boy').value=p.boy||'';
+  document.getElementById('p-kilo').value=p.kilo||'';
+  document.getElementById('p-yas').value=p.yas||'';
+  document.getElementById('p-cin').value=p.cin||'erkek';
+  document.getElementById('p-akt').value=p.akt||'1.55';
+  document.getElementById('p-hedef').value=p.hedef||'';
+  document.getElementById('p-amac').value=p.amac||'koru';
+  if(S.drive.clientId) document.getElementById('drive-client-id').value=S.drive.clientId;
+}
+
+// ══════════════════════════════════════
+// DATA EXPORT / IMPORT
+// ══════════════════════════════════════
+function exportData(){
+  const blob=new Blob([JSON.stringify({days:S.days,bodyComp:S.bodyComp,bodyMeasures:S.bodyMeasures,profile:S.profile},null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='kalori_data_'+new Date().toISOString().split('T')[0]+'.json';
+  a.click();
+}
+function importData(){document.getElementById('import-file').click();}
+function handleImport(e){
+  const file=e.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const imp=JSON.parse(ev.target.result);
+      if(!confirm('Mevcut data silinecek. Emin misin?')) return;
+      if(imp.days) S.days=imp.days;
+      if(imp.bodyComp) S.bodyComp=imp.bodyComp;
+      if(imp.bodyMeasures) S.bodyMeasures=imp.bodyMeasures;
+      if(imp.profile) Object.assign(S.profile,imp.profile);
+      saveLocal(); fillProfileFields(); buildAllDropdowns(); renderDay();
+      toast('Data yüklendi!');
+    }catch(err){toast('Hata: Geçersiz dosya');}
+  };
+  reader.readAsText(file);
+  e.target.value='';
+}
+
+// ══════════════════════════════════════
+// GOOGLE DRIVE
+// ══════════════════════════════════════
+const DRIVE_FILE_NAME='kalori_koc_data.json';
+function driveStatusShow(msg,type){
+  const el=document.getElementById('drive-status');
+  el.textContent=msg; el.className='drive-status '+type; el.style.display='block';
+}
+function driveAuth(){
+  const clientId=document.getElementById('drive-client-id').value.trim();
+  if(!clientId){toast('Client ID gir');return;}
+  S.drive.clientId=clientId; saveLocal();
+  const params=new URLSearchParams({client_id:clientId,
+    redirect_uri:window.location.href.split('?')[0].split('#')[0],
+    response_type:'token',scope:'https://www.googleapis.com/auth/drive.file',
+    include_granted_scopes:'true',state:'auth'});
+  window.location.href='https://accounts.google.com/o/oauth2/v2/auth?'+params;
+}
+function handleOAuthCallback(){
+  const hash=window.location.hash.substring(1);
+  if(!hash) return;
+  const params=new URLSearchParams(hash);
+  const token=params.get('access_token');
+  if(token){
+    S.drive.accessToken=token; saveLocal();
+    history.replaceState(null,'',window.location.pathname);
+    driveStatusShow('✓ Google hesabına bağlandı','ok');
+    toast('Drive bağlantısı kuruldu!');
+  }
+}
+async function driveFindFile(){
+  const res=await fetch(`https://www.googleapis.com/drive/v3/files?q=name='${DRIVE_FILE_NAME}' and trashed=false&fields=files(id,name)`,
+    {headers:{Authorization:'Bearer '+S.drive.accessToken}});
+  const data=await res.json();
+  if(data.error) throw new Error(data.error.message);
+  return data.files&&data.files.length?data.files[0].id:null;
+}
+async function drivePull(){
+  if(!S.drive.accessToken){toast('Önce Google ile bağlan');return;}
+  driveStatusShow('⟳ Drive\'dan çekiliyor...','info');
+  try{
+    const fileId=await driveFindFile();
+    if(!fileId){driveStatusShow('Drive\'da kayıt yok. Önce kaydet.','info');return;}
+    S.drive.fileId=fileId;
+    const res=await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
+      {headers:{Authorization:'Bearer '+S.drive.accessToken}});
+    const imp=await res.json();
+    if(imp.days) S.days=imp.days;
+    if(imp.bodyComp) S.bodyComp=imp.bodyComp;
+    if(imp.bodyMeasures) S.bodyMeasures=imp.bodyMeasures;
+    if(imp.profile) Object.assign(S.profile,imp.profile);
+    saveLocal(); fillProfileFields(); buildAllDropdowns(); renderDay();
+    driveStatusShow('✓ Drive\'dan güncellendi','ok');
+    toast('Data güncellendi!');
+  }catch(e){driveStatusShow('Hata: '+e.message,'err');}
+}
+async function drivePush(){
+  if(!S.drive.accessToken){toast('Önce Google ile bağlan');return;}
+  driveStatusShow('↑ Kaydediliyor...','info');
+  try{
+    const payload=JSON.stringify({days:S.days,bodyComp:S.bodyComp,bodyMeasures:S.bodyMeasures,profile:S.profile});
+    let fileId=S.drive.fileId||await driveFindFile();
+    if(fileId){
+      await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`,
+        {method:'PATCH',headers:{Authorization:'Bearer '+S.drive.accessToken,'Content-Type':'application/json'},body:payload});
+    } else {
+      const meta=await fetch('https://www.googleapis.com/drive/v3/files',
+        {method:'POST',headers:{Authorization:'Bearer '+S.drive.accessToken,'Content-Type':'application/json'},
+         body:JSON.stringify({name:DRIVE_FILE_NAME,mimeType:'application/json'})});
+      const md=await meta.json();
+      fileId=md.id; S.drive.fileId=fileId;
+      await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`,
+        {method:'PATCH',headers:{Authorization:'Bearer '+S.drive.accessToken,'Content-Type':'application/json'},body:payload});
+    }
+    saveLocal();
+    driveStatusShow('✓ Drive\'a kaydedildi','ok');
+    toast('Drive\'a kaydedildi!');
+  }catch(e){driveStatusShow('Hata: '+e.message,'err');}
+}
+
+// ══════════════════════════════════════
+// TAB / TOAST
+// ══════════════════════════════════════
+function switchTab(tab,btn){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sec-'+tab).classList.add('active');
+  btn.classList.add('active');
+  if(tab==='olcum'){renderBodyCompList();renderBodyMeasureList();}
+  if(tab==='gecmis') renderHistory();
+  if(tab==='profil') fillProfileFields();
+}
+let toastTimer;
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.classList.remove('show'),2200);
+}
+
+// ══════════════════════════════════════
+// INIT
+// ══════════════════════════════════════
+function init(){
+  loadLocal();
+  buildAllDropdowns();
+  setDateToday('bk-date');
+  setDateToday('vo-date');
+  fillProfileFields();
+  handleOAuthCallback();
+  renderDay();
+  if(S.drive.accessToken){
+    driveStatusShow('✓ Google hesabına bağlı','ok');
+  }
+}
+init();
+</script>
+</body>
+</html>
