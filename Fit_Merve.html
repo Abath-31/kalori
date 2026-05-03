@@ -801,7 +801,7 @@ function renderHistory(){
     for(let i=histPeriod-1;i>=0;i--){
       const k=keyFromOffset(-i);
       const d=S.days[k];
-      if(d){
+      if(d && d.kcal_min !== null && d.kcal_min !== undefined){
         const act=(d.activities||[]).reduce((a,x)=>a+x.kcal,0);
         const to=bmr+act;
         const minIn=d.kcal_min||0;
