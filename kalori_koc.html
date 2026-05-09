@@ -881,17 +881,12 @@ function renderHistory(){
       el.innerHTML='<div style="padding:14px;font-size:13px;color:#444;">Bu dönemde kayıt yok</div>';
     } else {
       el.innerHTML=entries.slice().reverse().map(e=>`
-        <div class="hist-item" style="flex-direction:column;align-items:stretch;gap:4px;">
-          <div style="display:flex;align-items:center;">
-            <span style="font-size:16px;margin-right:8px;">${DOT[e.status]}</span>
-            <span style="color:#666;font-size:12px;min-width:44px;">${e.label}</span>
-            <span style="flex:1;margin:0 8px;color:#ccc;">${e.ti} kcal</span>
-            <span style="font-size:11px;color:#555;">${e.minIn<e.maxIn?e.minIn+'–'+e.maxIn:''}</span>
-            <span style="font-size:12px;margin-left:8px;color:${e.netMid<0?COLORS.green:COLORS.red};">${e.netMid>0?'+':''}${e.netMid}</span>
-          </div>
-          ${e.acts.length?`<div style="display:flex;gap:6px;flex-wrap:wrap;padding-left:28px;">
-            ${e.acts.map(a=>`<span style="font-size:10px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:5px;padding:2px 7px;color:#888;">${a.name} <span style="color:#e63946;">-${a.kcal}</span></span>`).join('')}
-          </div>`:''}
+        <div class="hist-item">
+          <span style="font-size:16px;margin-right:8px;">${DOT[e.status]}</span>
+          <span style="color:#666;font-size:12px;min-width:44px;">${e.label}</span>
+          <span style="flex:1;margin:0 8px;color:#ccc;">${e.ti} kcal</span>
+          <span style="font-size:11px;color:#555;">${e.minIn<e.maxIn?e.minIn+'–'+e.maxIn:''}</span>
+          <span style="font-size:12px;margin-left:8px;color:${e.netMid<0?COLORS.green:COLORS.red};">${e.netMid>0?'+':''}${e.netMid}</span>
         </div>`).join('');
     }
 
@@ -951,7 +946,7 @@ function renderHistory(){
       const label=i===0?'Bug.':i===1?'Dün':k.slice(5);
       const perAkt={};
       (d.activities||[]).forEach(a=>{
-        const key=AKT_KEYS.includes(a.name)?a.name:'Full Body';
+        const key=AKT_KEYS.includes(a.name)?a.name:a.name;
         perAkt[key]=(perAkt[key]||0)+a.kcal;
         sumMap[key]=(sumMap[key]||0)+a.kcal;
       });
