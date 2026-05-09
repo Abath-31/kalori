@@ -846,7 +846,7 @@ function renderHistory(){
     for(let i=histPeriod-1;i>=0;i--){
       const k=keyFromOffset(-i);
       const d=S.days[k];
-      if(d && d.kcal_min !== null && d.kcal_min !== undefined){
+      if(d && d.kcal_min !== null && d.kcal_min !== undefined && k >= '2026-05-09'){
         const act=(d.activities||[]).reduce((a,x)=>a+x.kcal,0);
         const to=bmr+act;
         const minIn=d.kcal_min||0;
@@ -942,7 +942,7 @@ function renderHistory(){
     for(let i=histPeriod-1;i>=0;i--){
       const k=keyFromOffset(-i);
       const d=S.days[k];
-      if(!d||(d.activities||[]).length===0) continue;
+      if(!d||(d.activities||[]).length===0||k<'2026-05-09') continue;
       const label=i===0?'Bug.':i===1?'Dün':k.slice(5);
       const perAkt={};
       (d.activities||[]).forEach(a=>{
