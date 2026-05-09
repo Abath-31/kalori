@@ -213,7 +213,11 @@ select{background:#2a2a2a;border:1px solid #333;border-radius:8px;color:#e8e8e2;
     <div class="card card-pad">
       <div style="font-size:14px;font-weight:600;margin-bottom:10px;">Aktivite</div>
       <div style="display:flex;flex-direction:column;gap:8px;">
-        <input type="text" id="act-name-inp" placeholder="Aktivite adı (ör: Yürüyüş)" style="width:100%;"/>
+        <select id="act-name-inp" style="width:100%;background:#0f0f0f;color:#e8e2e2;border:1px solid #2a2a2a;border-radius:8px;padding:10px 12px;font-size:14px;font-family:inherit;">
+          <option value="Yürüyüş">🚶 Yürüyüş</option>
+          <option value="Kürek">🚣 Kürek</option>
+          <option value="Full Body">💪 Full Body</option>
+        </select>
         <div style="display:flex;gap:8px;align-items:center;">
           <input type="number" id="act-kcal-inp" placeholder="0" style="flex:1;" min="0"/>
           <span style="color:#555;font-size:13px;white-space:nowrap;">kcal yaktım</span>
@@ -228,13 +232,13 @@ select{background:#2a2a2a;border:1px solid #333;border-radius:8px;color:#e8e8e2;
   <!-- ══ ÖLÇÜM ══ -->
   <div class="section" id="sec-olcum">
     <div class="sub-tabs" style="margin-top:12px;">
-      <button class="sub-tab active" id="olcum-tab-kompozisyon" onclick="switchOlcumTab('kompozisyon',this)">Kilo & Yağ</button>
+      <button class="sub-tab active" id="olcum-tab-kompozisyon" onclick="switchOlcumTab('kompozisyon',this)">Kilo</button>
       <button class="sub-tab" id="olcum-tab-vucut" onclick="switchOlcumTab('vucut',this)">Vücut Ölçüleri</button>
     </div>
 
-    <!-- Kilo & Yağ -->
+    <!-- Kilo -->
     <div id="olcum-sec-kompozisyon">
-      <div class="sec-title">Kilo & Yağ Oranı Girişi</div>
+      <div class="sec-title">Kilo Oranı Girişi</div>
       <div class="card card-pad">
         <div class="dropdown-row">
           <label>Tarih</label>
@@ -291,8 +295,9 @@ select{background:#2a2a2a;border:1px solid #333;border-radius:8px;color:#e8e8e2;
 
     <div class="sub-tabs">
       <button class="sub-tab active" onclick="switchHistTab('kalori',this)">Kalori</button>
-      <button class="sub-tab" onclick="switchHistTab('kompozisyon',this)">Kilo & Yağ</button>
+      <button class="sub-tab" onclick="switchHistTab('kompozisyon',this)">Kilo</button>
       <button class="sub-tab" onclick="switchHistTab('vucut',this)">Vücut</button>
+      <button class="sub-tab" onclick="switchHistTab('aktivite',this)">Aktivite</button>
     </div>
 
     <!-- Kalori geçmiş -->
@@ -333,7 +338,38 @@ select{background:#2a2a2a;border:1px solid #333;border-radius:8px;color:#e8e8e2;
       </div>
     </div>
 
-    <!-- Kilo & Yağ geçmiş -->
+    <!-- Aktivite geçmiş -->
+    <div id="hist-sec-aktivite" style="display:none;">
+      <div class="chart-wrap">
+        <div class="chart-title">Günlük yakılan kalori (aktivite)</div>
+        <div style="position:relative;height:220px;"><canvas id="akt-chart"></canvas></div>
+      </div>
+      <!-- Özet kartlar -->
+      <div class="summary-grid" style="margin-top:10px;">
+        <div class="summary-card">
+          <div class="summary-lbl">🚶 Yürüyüş</div>
+          <div class="summary-val" id="akt-sum-yuruyus" style="color:#a36ab5;">—</div>
+          <div class="summary-sub">kcal</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-lbl">🚣 Kürek</div>
+          <div class="summary-val" id="akt-sum-kurek" style="color:#d4991a;">—</div>
+          <div class="summary-sub">kcal</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-lbl">💪 Full Body</div>
+          <div class="summary-val" id="akt-sum-fullbody" style="color:#e8e2e2;">—</div>
+          <div class="summary-sub">kcal</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-lbl">Toplam</div>
+          <div class="summary-val" id="akt-sum-toplam" style="color:#7bc42e;">—</div>
+          <div class="summary-sub">kcal</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kilo geçmiş -->
     <div id="hist-sec-kompozisyon" style="display:none;">
       <div class="chart-wrap">
         <div class="chart-title">Kilo (kg)</div>
@@ -649,13 +685,12 @@ function saveKcalIn(){
 }
 
 function addActivity(){
-  const name=document.getElementById('act-name-inp').value.trim()||'Aktivite';
+  const name=document.getElementById('act-name-inp').value||'Yürüyüş';
   const kcal=parseInt(document.getElementById('act-kcal-inp').value);
   if(isNaN(kcal)||kcal<0){toast('Geçerli kalori gir');return;}
   const day=getDay();
   if(!day.activities) day.activities=[];
   day.activities.push({name,kcal});
-  document.getElementById('act-name-inp').value='';
   document.getElementById('act-kcal-inp').value='';
   saveLocal();
   renderDay();
@@ -669,7 +704,7 @@ function removeActivity(i){
 }
 
 // ══════════════════════════════════════
-// ÖLÇÜM — Kilo & Yağ
+// ÖLÇÜM — Kilo
 // ══════════════════════════════════════
 function saveBodyComp(){
   const dateVal=document.getElementById('bk-date').value;
@@ -783,7 +818,7 @@ function switchOlcumTab(tab,btn){
 // ══════════════════════════════════════
 // GEÇMİŞ
 // ══════════════════════════════════════
-let trendC=null,netC=null,kiloC=null,yagC=null,vucutC=null,belC=null;
+let trendC=null,netC=null,kiloC=null,yagC=null,vucutC=null,belC=null,aktC=null;
 
 function setPeriod(days,btn){
   histPeriod=days;
@@ -794,7 +829,7 @@ function setPeriod(days,btn){
 
 function switchHistTab(tab,btn){
   histTab=tab;
-  ['kalori','kompozisyon','vucut'].forEach(t=>{
+  ['kalori','kompozisyon','vucut','aktivite'].forEach(t=>{
     document.getElementById('hist-sec-'+t).style.display=t===tab?'block':'none';
   });
   document.querySelectorAll('#sec-gecmis .sub-tab').forEach(b=>b.classList.remove('active'));
@@ -821,7 +856,8 @@ function renderHistory(){
         const netMin=minIn-to;
         const netMax=maxIn-to;
         entries.push({date:k,label:i===0?'Bug.':i===1?'Dün':k.slice(5),
-          ti:midIn,minIn,maxIn,to,netMid,netMin,netMax,status:d.status||getStatus(netMid)});
+          ti:midIn,minIn,maxIn,to,netMid,netMin,netMax,status:d.status||getStatus(netMid),
+          acts:d.activities||[]});
       }
     }
 
@@ -845,12 +881,17 @@ function renderHistory(){
       el.innerHTML='<div style="padding:14px;font-size:13px;color:#444;">Bu dönemde kayıt yok</div>';
     } else {
       el.innerHTML=entries.slice().reverse().map(e=>`
-        <div class="hist-item">
-          <span style="font-size:16px;margin-right:8px;">${DOT[e.status]}</span>
-          <span style="color:#666;font-size:12px;min-width:44px;">${e.label}</span>
-          <span style="flex:1;margin:0 8px;color:#ccc;">${e.ti} kcal</span>
-          <span style="font-size:11px;color:#555;">${e.minIn<e.maxIn?e.minIn+'–'+e.maxIn:''}</span>
-          <span style="font-size:12px;margin-left:8px;color:${e.netMid<0?COLORS.green:COLORS.red};">${e.netMid>0?'+':''}${e.netMid}</span>
+        <div class="hist-item" style="flex-direction:column;align-items:stretch;gap:4px;">
+          <div style="display:flex;align-items:center;">
+            <span style="font-size:16px;margin-right:8px;">${DOT[e.status]}</span>
+            <span style="color:#666;font-size:12px;min-width:44px;">${e.label}</span>
+            <span style="flex:1;margin:0 8px;color:#ccc;">${e.ti} kcal</span>
+            <span style="font-size:11px;color:#555;">${e.minIn<e.maxIn?e.minIn+'–'+e.maxIn:''}</span>
+            <span style="font-size:12px;margin-left:8px;color:${e.netMid<0?COLORS.green:COLORS.red};">${e.netMid>0?'+':''}${e.netMid}</span>
+          </div>
+          ${e.acts.length?`<div style="display:flex;gap:6px;flex-wrap:wrap;padding-left:28px;">
+            ${e.acts.map(a=>`<span style="font-size:10px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:5px;padding:2px 7px;color:#888;">${a.name} <span style="color:#e63946;">-${a.kcal}</span></span>`).join('')}
+          </div>`:''}
         </div>`).join('');
     }
 
@@ -891,6 +932,71 @@ function renderHistory(){
       data:ms.map(m=>m.yag||null),borderColor:'#d4991a',backgroundColor:'rgba(212,153,26,0.08)',
       tension:0.3,spanGaps:true,pointRadius:4,borderWidth:2
     }]},options:cOpts});
+
+  } else if(histTab==='aktivite'){
+    const AKT_COLORS = {
+      'Yürüyüş': '#a36ab5',
+      'Kürek':   '#d4991a',
+      'Full Body':'#e8e2e2',
+    };
+    const AKT_KEYS = ['Yürüyüş','Kürek','Full Body'];
+    
+    // Collect data per day
+    const days=[];
+    const sumMap={'Yürüyüş':0,'Kürek':0,'Full Body':0};
+    for(let i=histPeriod-1;i>=0;i--){
+      const k=keyFromOffset(-i);
+      const d=S.days[k];
+      if(!d||(d.activities||[]).length===0) continue;
+      const label=i===0?'Bug.':i===1?'Dün':k.slice(5);
+      const perAkt={};
+      (d.activities||[]).forEach(a=>{
+        const key=AKT_KEYS.includes(a.name)?a.name:'Full Body';
+        perAkt[key]=(perAkt[key]||0)+a.kcal;
+        sumMap[key]=(sumMap[key]||0)+a.kcal;
+      });
+      days.push({label, perAkt});
+    }
+    
+    // Summary cards
+    const toplam=Object.values(sumMap).reduce((a,v)=>a+v,0);
+    document.getElementById('akt-sum-yuruyus').textContent=sumMap['Yürüyüş']||0;
+    document.getElementById('akt-sum-kurek').textContent=sumMap['Kürek']||0;
+    document.getElementById('akt-sum-fullbody').textContent=sumMap['Full Body']||0;
+    document.getElementById('akt-sum-toplam').textContent=toplam;
+    
+    // Stacked bar chart
+    const labels=days.map(d=>d.label);
+    const datasets=AKT_KEYS.map(key=>({
+      label:key,
+      data:days.map(d=>d.perAkt[key]||0),
+      backgroundColor:AKT_COLORS[key]+(key==='Yürüyüş'?'cc':key==='Kürek'?'cc':'cc'),
+      borderRadius:2,
+      borderSkipped:false,
+    }));
+    
+    if(aktC) aktC.destroy();
+    if(!days.length){
+      if(aktC) aktC.destroy();
+      aktC=null;
+    } else {
+      aktC=new Chart(document.getElementById('akt-chart'),{
+        type:'bar',
+        data:{labels, datasets},
+        options:{
+          responsive:true,
+          maintainAspectRatio:false,
+          plugins:{
+            legend:{display:true,labels:{color:'#888',font:{size:10},boxWidth:10,padding:10}},
+            tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+ctx.parsed.y+' kcal'}}
+          },
+          scales:{
+            x:{stacked:true,ticks:{color:'#555',font:{size:10},maxTicksLimit:12},grid:{color:'#1a1a1a'}},
+            y:{stacked:true,ticks:{color:'#555',font:{size:10}},grid:{color:'#1a1a1a'},title:{display:true,text:'kcal',color:'#444',font:{size:9}}}
+          }
+        }
+      });
+    }
 
   } else if(histTab==='vucut'){
     const ms=S.bodyMeasures.filter(m=>m.date>=cutoffKey);
